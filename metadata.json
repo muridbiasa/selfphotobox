@@ -1,0 +1,6 @@
+{
+  "name": "Memo 4 Frame",
+  "description": "A Gen-Z styled Self-Photobox kiosk with custom templates, camera support, real-time retake loop, and QR-code downloads.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

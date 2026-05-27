@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Space+Grotesk:wght@500;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Custom Neo-Brutalist utility effects */
+.neo-border {
+  border: 4px solid #1A1A1A;
+}
+
+.neo-shadow {
+  box-shadow: 6px 6px 0px #1A1A1A;
+}
+
+.neo-shadow-sm {
+  box-shadow: 3px 3px 0px #1A1A1A;
+}
+
+.neo-shadow-lg {
+  box-shadow: 10px 10px 0px #1A1A1A;
+}
+
+.neo-shadow-active {
+  box-shadow: 2px 2px 0px #1A1A1A !important;
+  transform: translate(4px, 4px) !important;
+}
+
+.neo-button {
+  transition: all 0.1s ease-in-out;
+}
+
+.neo-button:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0px #1A1A1A;
+}
+
+/* Base style resets and scrollbars */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #FFE5F1;
+  border-left: 3px solid #1A1A1A;
+}
+::-webkit-scrollbar-thumb {
+  background: #FF3366;
+  border: 3px solid #1A1A1A;
+}
+
+/* Marquee infinite loop animation */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+
+/* Flash effect for capturing camera snapshots */
+@keyframes flash {
+  0% { opacity: 0; }
+  25% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.animate-flash {
+  animation: flash 0.5s ease-out forwards;
+}
