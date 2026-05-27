@@ -58,7 +58,7 @@ export default function QRResultScreen({
 
         if (uploadResult.success) {
           // Construct download link
-          const downloadLink = `${window.location.origin}${uploadResult.downloadUrl}`;
+          const downloadLink = uploadResult.downloadUrl; // Google Drive URL sudah full path
           setDownloadUrl(downloadLink);
 
           // Step C: Convert download link to scannable QRCode
