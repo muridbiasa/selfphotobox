@@ -73,14 +73,32 @@ export async function generateCompositeImage(
     ctx.translate(hole.x + hole.width / 2, hole.y + hole.height / 2);
     ctx.scale(-1, 1);
 
-    // Center Crop — object-fit: cover (PRD §4.3)
+    // Aspect Ratio Fill (object-fit: cover) menggunakan 9 parameter drawImage
     const srcW = img.width;
     const srcH = img.height;
-    const scale = Math.max(hole.width / srcW, hole.height / srcH);
-    const drawW = srcW * scale;
-    const drawH = srcH * scale;
+    const targetRatio = hole.width / hole.height;
+    const srcRatio = srcW / srcH;
 
-    ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+    let sx, sy, sWidth, sHeight;
+
+    if (srcRatio > targetRatio) {
+      // Foto lebih lebar dari target -> crop samping (kiri-kanan)
+      sHeight = srcH;
+      sWidth = srcH * targetRatio;
+      sx = (srcW - sWidth) / 2;
+      sy = 0;
+    } else {
+      // Foto lebih tinggi dari target -> crop atas-bawah
+      sWidth = srcW;
+      sHeight = srcW / targetRatio;
+      sx = 0;
+      sy = (srcH - sHeight) / 2;
+    }
+
+    // Draw image dengan crop presisi: (img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
+    // Karena sudah translate ke tengah dan scale(-1, 1), kita gambar dari (-width/2, -height/2)
+    ctx.drawImage(img, sx, sy, sWidth, sHeight, -hole.width / 2, -hole.height / 2, hole.width, hole.height);
+    
     ctx.restore();
   }
 
