@@ -25,13 +25,35 @@ type Phase = 'loading' | 'waiting_scan' | 'polling' | 'error';
 const GAS_URL = import.meta.env.VITE_GAS_URL as string;
 
 export default function PaymentScreen({ onBack, onPaymentSuccess }: PaymentScreenProps) {
-  const [phase,    setPhase]    = useState<Phase>('loading');
-  const [orderId,  setOrderId]  = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
-  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [phase,       setPhase]       = useState<Phase>('loading');
+  const [orderId,     setOrderId]     = useState('');
+  const [errorMsg,    setErrorMsg]    = useState('');
+  const [tapCount,    setTapCount]    = useState(0);
+  const [showBypass,  setShowBypass]  = useState(false);
+  const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pollingRef  = useRef<ReturnType<typeof setInterval> | null>(null);
+  const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const stopPolling = () => {
     if (pollingRef.current) { clearInterval(pollingRef.current); pollingRef.current = null; }
+  };
+
+  // ─── Bypass: tap sudut kiri bawah 5x dalam 3 detik ───
+  const handleSecretTap = () => {
+    const next = tapCount + 1;
+    setTapCount(next);
+    if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
+    if (next >= 5) {
+      setShowBypass(true);
+      setTapCount(0);
+    } else {
+      tapTimerRef.current = setTimeout(() => setTapCount(0), 3000);
+    }
+  };
+
+  const handleBypass = () => {
+    stopPolling();
+    onPaymentSuccess(orderId || `BYPASS-${Date.now()}`);
   };
 
   // ─── 1. Minta token ke GAS ────────────────────────────
@@ -191,8 +213,30 @@ export default function PaymentScreen({ onBack, onPaymentSuccess }: PaymentScree
               <span>DANA</span><span>·</span><span>SHOPEEPAY</span>
             </div>
           )}
+
+          {/* Bypass button — muncul setelah 5x tap area tersembunyi */}
+          {showBypass && (
+            <div className="w-full border-t-2 border-dashed border-red-200 pt-4 flex flex-col items-center gap-2">
+              <p className="text-[10px] font-mono text-red-300 uppercase tracking-widest">
+                🔧 MODE OPERATOR
+              </p>
+              <button
+                onClick={handleBypass}
+                className="w-full py-2.5 bg-gray-800 text-white font-bold border-2 border-gray-600 rounded-lg text-xs uppercase tracking-wider hover:bg-gray-700"
+              >
+                ⚡ BYPASS PAYMENT (ADMIN ONLY)
+              </button>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Area tap tersembunyi — pojok kiri bawah, tidak terlihat user */}
+      <div
+        onClick={handleSecretTap}
+        className="fixed bottom-0 left-0 w-16 h-16 z-50 opacity-0 cursor-default"
+        aria-hidden="true"
+      />
     </div>
   );
 }
