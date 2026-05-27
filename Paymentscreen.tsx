@@ -30,8 +30,10 @@ export default function PaymentScreen({ onBack, onPaymentSuccess }: PaymentScree
   const [errorMsg,    setErrorMsg]    = useState('');
   const [tapCount,    setTapCount]    = useState(0);
   const [showBypass,  setShowBypass]  = useState(false);
-  const pollingRef  = useRef<ReturnType<typeof setInterval> | null>(null);
+  
+  // FIX: Deklarasi useRef sekarang hanya ada satu untuk masing-masing ref
   const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pollingRef  = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const stopPolling = () => {
     if (pollingRef.current) { clearInterval(pollingRef.current); pollingRef.current = null; }
