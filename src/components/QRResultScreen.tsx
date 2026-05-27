@@ -42,12 +42,12 @@ export default function QRResultScreen({
 
         // Step B: Upload composite to our full-stack server
         if (isActive) setStatusText('Mengunggah ke database awan...');
-        const hostUrl = `${window.location.origin}/api/upload`;
+        const hostUrl = import.meta.env.VITE_GAS_URL as string;
         
         const response = await fetch(hostUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'uploadPhoto',
             orderId: orderId || 'GUEST-' + Date.now(),
             image: mergedBase64
           })
