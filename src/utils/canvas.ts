@@ -24,11 +24,11 @@ function loadImage(src: string): Promise<HTMLImageElement> {
  *
  * Struktur Layer:
  *   LAYER BAWAH  → Foto-foto user (center-crop, mirrored)
- *   LAYER ATAS   → Overlay bingkai /5 (1).png (transparan, menutupi seluruh kanvas)
+ *   LAYER ATAS   → Overlay bingkai /frame1.png (transparan, menutupi seluruh kanvas)
  *
  * LARANGAN KERAS:
  *   - Tidak ada ctx.fillText / ctx.rect / ctx.stroke untuk dekorasi buatan.
- *   - Jika /5 (1).png gagal dimuat, fungsi melempar error murni tanpa fallback grafis.
+ *   - Jika /frame1.png gagal dimuat, fungsi melempar error murni tanpa fallback grafis.
  */
 export async function generateCompositeImage(
   photos: string[],
@@ -84,10 +84,10 @@ export async function generateCompositeImage(
     ctx.restore();
   }
 
-  // ─── 5. LAYER ATAS: Overlay bingkai asli /5 (1).png ──────────────────────
+  // ─── 5. LAYER ATAS: Overlay bingkai asli /frame1.png ──────────────────────
   // Area lubang pada file ini sudah 100% transparan → foto user otomatis terlihat.
   // Jika file gagal dimuat, error dilempar langsung — TANPA fallback grafis.
-  const frameOverlay = await loadImage('/5 (1).png');
+  const frameOverlay = await loadImage('/frame1.png');
   ctx.drawImage(frameOverlay, 0, 0, canvas.width, canvas.height);
 
   // ─── 6. OUTPUT: JPEG 90% quality ─────────────────────────────────────────

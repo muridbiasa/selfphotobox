@@ -2,7 +2,7 @@ import { FrameTemplate } from './types';
 
 /**
  * Hanya satu template aktif: Sedes Run Unity 75th.
- * Bingkai desain asli diambil dari /5 (1).png (public/).
+ * Bingkai desain asli diambil dari /frame1.png (public/).
  * Template lain dihapus karena aset overlay hanya satu file.
  */
 export const FRAME_TEMPLATES: FrameTemplate[] = [

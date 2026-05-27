@@ -10,7 +10,7 @@ interface TemplateScreenProps {
 
 /**
  * TemplateScreen — hanya menampilkan satu template (Sedes Run Unity 75th).
- * Preview menggunakan gambar asli /5 (1).png dari public/.
+ * Preview menggunakan gambar asli /frame1.png dari public/.
  */
 export default function TemplateScreen({ onSelectTemplate }: TemplateScreenProps) {
   const template = FRAME_TEMPLATES[0];
@@ -38,10 +38,10 @@ export default function TemplateScreen({ onSelectTemplate }: TemplateScreenProps
           {template.styleName}
         </p>
 
-        {/* Real frame preview — /5 (1).png */}
+        {/* Real frame preview — /frame1.png */}
         <div className="w-48 rounded-2xl overflow-hidden border-4 border-[#FFFC00] shadow-[0_0_30px_rgba(255,252,0,0.3)]">
           <img
-            src="/5 (1).png"
+            src="/frame1.png"
             alt="Preview bingkai Sedes Run Unity 75th"
             className="w-full h-auto block"
             draggable={false}
