@@ -47,17 +47,19 @@ export default function TemplateScreen({ onSelectTemplate }: TemplateScreenProps
               className="flex flex-col items-center gap-3 group"
             >
               <div 
-                className="w-full aspect-[500/1500] rounded-xl overflow-hidden border-4 transition-shadow duration-300"
+                className="w-full aspect-[500/1500] rounded-xl overflow-hidden border-4 transition-shadow duration-300 p-0 m-0"
                 style={{
                   borderColor: template.accentColor || '#FFFC00',
                   boxShadow: `0 0 25px ${template.accentColor || '#FFFC00'}80, 0 0 50px ${template.accentColor || '#FFFC00'}40, inset 0 0 20px ${template.accentColor || '#FFFC00'}20`,
+                  height: 'fit-content',
                 }}
               >
                 <img
                   src={template.frameImage || '/frame1.png'}
                   alt={template.name}
-                  className="w-full h-auto block"
+                  className="w-full h-full object-cover block m-0 p-0"
                   draggable={false}
+                  style={{ display: 'block' }}
                 />
               </div>
               <span className="text-white font-bold text-sm uppercase tracking-tight text-center">
