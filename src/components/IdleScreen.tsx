@@ -60,7 +60,14 @@ export default function IdleScreen({ onStart }: IdleScreenProps) {
         <div className="inline-block px-6 py-2 bg-[#8A2BE2] text-white font-mono font-extrabold border-4 border-[#1A1A1A] neo-shadow text-sm uppercase tracking-widest rounded-md mb-6">
           ★ DIGITAL PHOTO KIOSK ★
         </div>
-        <h2 className="font-display font-extrabold text-3xl sm:text-5xl md:text-6xl text-[#1A1A1A] uppercase tracking-tighter filter drop-shadow-[5px_5px_0px_#1A1A1A] leading-none mb-1">
+        <h2 
+          className="font-display font-extrabold text-3xl sm:text-5xl md:text-6xl text-white uppercase tracking-tighter leading-none mb-1 text-center"
+          style={{
+            fontFamily: "'Rubik Mono One', sans-serif",
+            textShadow: "4px 4px 0px #000000",
+            letterSpacing: "-1px",
+          }}
+        >
           MEMO 4 FRAME
         </h2>
       </div>
