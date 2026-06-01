@@ -9,12 +9,10 @@ interface TemplateScreenProps {
 }
 
 /**
- * TemplateScreen — hanya menampilkan satu template (Sedes Run Unity 75th).
- * Preview menggunakan gambar asli /frame1.png dari public/.
+ * TemplateScreen — menampilkan 4 pilihan template frame (frame1.png sampai frame4.png).
+ * User bisa memilih salah satu frame untuk digunakan dalam sesi foto.
  */
 export default function TemplateScreen({ onSelectTemplate }: TemplateScreenProps) {
-  const template = FRAME_TEMPLATES[0];
-
   return (
     <div
       id="template-screen-container"
@@ -24,7 +22,7 @@ export default function TemplateScreen({ onSelectTemplate }: TemplateScreenProps
         backgroundSize: '24px 24px',
       }}
     >
-      <div className="w-full max-w-sm flex flex-col items-center gap-6">
+      <div className="w-full max-w-4xl flex flex-col items-center gap-6">
 
         {/* Step Badge */}
         <div className="px-5 py-1.5 bg-[#FFFC00] border-2 border-[#1A1A1A] rounded-full font-mono text-xs font-black uppercase tracking-wider rotate-[-1deg]">
@@ -32,33 +30,40 @@ export default function TemplateScreen({ onSelectTemplate }: TemplateScreenProps
         </div>
 
         <h1 className="font-black text-3xl text-white uppercase tracking-tighter text-center leading-tight">
-          {template.name}
+          Sedes Run Unity 75th
         </h1>
         <p className="text-sm font-medium text-white/70 text-center">
-          {template.styleName}
+          Strip vertikal 5×15 cm • 4 foto • Event Run 6 Juni 2026
         </p>
 
-        {/* Real frame preview — /frame1.png */}
-        <div className="w-48 rounded-2xl overflow-hidden border-4 border-[#FFFC00] shadow-[0_0_30px_rgba(255,252,0,0.3)]">
-          <img
-            src="/frame1.png"
-            alt="Preview bingkai Sedes Run Unity 75th"
-            className="w-full h-auto block"
-            draggable={false}
-          />
+        {/* Grid 4 frame choices */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
+          {FRAME_TEMPLATES.map((template) => (
+            <motion.button
+              key={template.id}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => onSelectTemplate(template)}
+              className="flex flex-col items-center gap-3 group"
+            >
+              <div className="w-full aspect-[500/1500] rounded-xl overflow-hidden border-4 border-[#FFFC00] shadow-[0_0_20px_rgba(255,252,0,0.2)] group-hover:shadow-[0_0_30px_rgba(255,252,0,0.5)] transition-shadow">
+                <img
+                  src={template.frameImage || '/frame1.png'}
+                  alt={template.name}
+                  className="w-full h-auto block"
+                  draggable={false}
+                />
+              </div>
+              <span className="text-white font-bold text-sm uppercase tracking-tight text-center">
+                {template.name.replace('Sedes Run Unity 75th - ', '')}
+              </span>
+            </motion.button>
+          ))}
         </div>
 
-        {/* Confirm CTA */}
-        <motion.button
-          id="confirm-template-btn"
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={() => onSelectTemplate(template)}
-          className="w-full py-4 bg-[#FF3366] text-white font-black text-xl uppercase border-4 border-[#1A1A1A] rounded-2xl cursor-pointer tracking-tight flex items-center justify-center gap-3 hover:bg-[#e02b59] shadow-[6px_6px_0px_#1A1A1A]"
-        >
-          <Sparkles className="w-6 h-6 fill-white text-white" />
-          <span>MULAI SESI FOTO</span>
-        </motion.button>
+        <p className="text-xs font-medium text-white/60 text-center mt-4">
+          Klik pada frame untuk memilih dan memulai sesi foto
+        </p>
 
       </div>
     </div>

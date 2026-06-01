@@ -102,10 +102,11 @@ export async function generateCompositeImage(
     ctx.restore();
   }
 
-  // ─── 5. LAYER ATAS: Overlay bingkai asli /frame1.png ──────────────────────
+  // ─── 5. LAYER ATAS: Overlay bingkai sesuai template yang dipilih ──────────────────────
   // Area lubang pada file ini sudah 100% transparan → foto user otomatis terlihat.
   // Jika file gagal dimuat, error dilempar langsung — TANPA fallback grafis.
-  const frameOverlay = await loadImage('/frame1.png');
+  const frameImageUrl = template.frameImage || '/frame1.png';
+  const frameOverlay = await loadImage(frameImageUrl);
   ctx.drawImage(frameOverlay, 0, 0, canvas.width, canvas.height);
 
   // ─── 6. OUTPUT: JPEG 90% quality ─────────────────────────────────────────

@@ -1,14 +1,13 @@
 import { FrameTemplate } from './types';
 
 /**
- * Hanya satu template aktif: Sedes Run Unity 75th.
- * Bingkai desain asli diambil dari /frame1.png (public/).
- * Template lain dihapus karena aset overlay hanya satu file.
+ * Empat template aktif untuk Sedes Run Unity 75th.
+ * Setiap template menggunakan bingkai desain asli dari /frame1.png sampai /frame4.png (public/).
  */
 export const FRAME_TEMPLATES: FrameTemplate[] = [
   {
-    id: 'sedes-run',
-    name: 'Sedes Run Unity 75th',
+    id: 'sedes-run-1',
+    name: 'Sedes Run Unity 75th - Frame 1',
     bgColor: '#1C2459',
     borderColor: '#FFFC00',
     textColor: '#FFFFFF',
@@ -16,5 +15,42 @@ export const FRAME_TEMPLATES: FrameTemplate[] = [
     label: 'SEDES RUN UNITY 75th',
     styleName: 'Strip vertikal 5×15 cm • 4 foto • Event Run 6 Juni 2026',
     decor: 'sedes-run',
+    frameImage: '/frame1.png',
+  },
+  {
+    id: 'sedes-run-2',
+    name: 'Sedes Run Unity 75th - Frame 2',
+    bgColor: '#1C2459',
+    borderColor: '#FFFC00',
+    textColor: '#FFFFFF',
+    fontFamily: '"Space Grotesk", sans-serif',
+    label: 'SEDES RUN UNITY 75th',
+    styleName: 'Strip vertikal 5×15 cm • 4 foto • Event Run 6 Juni 2026',
+    decor: 'sedes-run',
+    frameImage: '/frame2.png',
+  },
+  {
+    id: 'sedes-run-3',
+    name: 'Sedes Run Unity 75th - Frame 3',
+    bgColor: '#1C2459',
+    borderColor: '#FFFC00',
+    textColor: '#FFFFFF',
+    fontFamily: '"Space Grotesk", sans-serif',
+    label: 'SEDES RUN UNITY 75th',
+    styleName: 'Strip vertikal 5×15 cm • 4 foto • Event Run 6 Juni 2026',
+    decor: 'sedes-run',
+    frameImage: '/frame3.png',
+  },
+  {
+    id: 'sedes-run-4',
+    name: 'Sedes Run Unity 75th - Frame 4',
+    bgColor: '#1C2459',
+    borderColor: '#FFFC00',
+    textColor: '#FFFFFF',
+    fontFamily: '"Space Grotesk", sans-serif',
+    label: 'SEDES RUN UNITY 75th',
+    styleName: 'Strip vertikal 5×15 cm • 4 foto • Event Run 6 Juni 2026',
+    decor: 'sedes-run',
+    frameImage: '/frame4.png',
   },
 ];

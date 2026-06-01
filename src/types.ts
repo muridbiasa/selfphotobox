@@ -17,6 +17,7 @@ export interface FrameTemplate {
   label: string;
   styleName: string;
   decor?: 'checkers' | 'stars' | 'retro' | 'minimal' | 'sedes-run';
+  frameImage?: string;
 }
 
 export interface CapturedPhoto {
