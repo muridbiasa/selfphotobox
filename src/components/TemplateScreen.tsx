@@ -46,7 +46,13 @@ export default function TemplateScreen({ onSelectTemplate }: TemplateScreenProps
               onClick={() => onSelectTemplate(template)}
               className="flex flex-col items-center gap-3 group"
             >
-              <div className="w-full aspect-[500/1500] rounded-xl overflow-hidden border-4 border-[#FFFC00] shadow-[0_0_20px_rgba(255,252,0,0.2)] group-hover:shadow-[0_0_30px_rgba(255,252,0,0.5)] transition-shadow">
+              <div 
+                className="w-full aspect-[500/1500] rounded-xl overflow-hidden border-4 shadow-lg transition-shadow"
+                style={{
+                  borderColor: template.accentColor || '#FFFC00',
+                  boxShadow: `0 0 20px ${template.accentColor || '#FFFC00'}40`,
+                }}
+              >
                 <img
                   src={template.frameImage || '/frame1.png'}
                   alt={template.name}

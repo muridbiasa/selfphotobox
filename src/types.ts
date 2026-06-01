@@ -18,6 +18,7 @@ export interface FrameTemplate {
   styleName: string;
   decor?: 'checkers' | 'stars' | 'retro' | 'minimal' | 'sedes-run';
   frameImage?: string;
+  accentColor?: string;
 }
 
 export interface CapturedPhoto {
