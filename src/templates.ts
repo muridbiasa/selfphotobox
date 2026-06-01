@@ -29,7 +29,7 @@ export const FRAME_TEMPLATES: FrameTemplate[] = [
     styleName: 'Strip vertikal 5×15 cm • 4 foto • Event Run 6 Juni 2026',
     decor: 'sedes-run',
     frameImage: '/frame2.png',
-    accentColor: '#00FFFF', // Electric Cyan - tema Vintage/Merah Gelap
+    accentColor: '#D51C39', // Merah gelap - tema Vintage
   },
   {
     id: 'sedes-run-3',
@@ -42,7 +42,7 @@ export const FRAME_TEMPLATES: FrameTemplate[] = [
     styleName: 'Strip vertikal 5×15 cm • 4 foto • Event Run 6 Juni 2026',
     decor: 'sedes-run',
     frameImage: '/frame3.png',
-    accentColor: '#FF5500', // Blazing Orange - tema Snoopy/Langit Biru
+    accentColor: '#39FF14', // Acid Green - tema Snoopy/Langit Biru
   },
   {
     id: 'sedes-run-4',
