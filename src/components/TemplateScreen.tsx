@@ -47,10 +47,10 @@ export default function TemplateScreen({ onSelectTemplate }: TemplateScreenProps
               className="flex flex-col items-center gap-3 group"
             >
               <div 
-                className="w-full aspect-[500/1500] rounded-xl overflow-hidden border-4 shadow-lg transition-shadow"
+                className="w-full aspect-[500/1500] rounded-xl overflow-hidden border-4 transition-shadow duration-300"
                 style={{
                   borderColor: template.accentColor || '#FFFC00',
-                  boxShadow: `0 0 20px ${template.accentColor || '#FFFC00'}40`,
+                  boxShadow: `0 0 25px ${template.accentColor || '#FFFC00'}80, 0 0 50px ${template.accentColor || '#FFFC00'}40, inset 0 0 20px ${template.accentColor || '#FFFC00'}20`,
                 }}
               >
                 <img
