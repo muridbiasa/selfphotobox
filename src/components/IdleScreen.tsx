@@ -61,9 +61,10 @@ export default function IdleScreen({ onStart }: IdleScreenProps) {
           ★ DIGITAL PHOTO KIOSK ★
         </div>
         <h2 
-          className="font-display font-extrabold text-3xl sm:text-5xl md:text-6xl text-white uppercase tracking-tighter leading-none mb-1 text-center"
+          className="font-sans font-black text-3xl sm:text-5xl md:text-6xl uppercase tracking-tighter leading-none mb-1 text-center"
           style={{
-            fontFamily: "'Rubik Mono One', sans-serif",
+            color: "#FF6F61",
+            WebkitTextStroke: "2px #000000",
             textShadow: "4px 4px 0px #000000",
             letterSpacing: "-1px",
           }}
