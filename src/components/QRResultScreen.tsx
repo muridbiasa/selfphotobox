@@ -198,13 +198,15 @@ export default function QRResultScreen({
               padding: 0; 
               background: white; 
               overflow: hidden; 
-              height: 100vh; 
-              display: flex; 
-              align-items: center; 
-              justify-content: center; 
+              width: 297mm; /* Lebar penuh A4 Landscape */
+              height: 210mm; /* Tinggi penuh A4 Landscape */
+              position: relative;
               font-family: sans-serif;
             }
             img {
+              position: absolute;
+              left: 0; /* Rata kiri mutlak untuk efisiensi kertas */
+              top: 0.5cm; /* Margin atas sedikit */
               width: 5cm;
               height: 15cm;
               object-fit: cover;
@@ -212,6 +214,8 @@ export default function QRResultScreen({
               border: none !important;
               box-shadow: none !important;
               outline: none !important;
+              margin: 0 !important;
+              padding: 0 !important;
             }
             .loading { 
               position: absolute; 
