@@ -1,13 +1,11 @@
 // ============================================================
-// MEMO 4 FRAME — Google Apps Script (Full Backend)
+// MEMO 4 FRAME — Google Apps Script (Upload & Log Only)
 // Deploy: Web App → Execute as: Me → Access: Anyone
+// MIDTRANS TOKEN HANDLED BY VERCEL API (More Secure)
 // ============================================================
 
 var FOLDER_NAME      = "Memo4Frame_Photos";
 var SHEET_NAME       = "Transactions";
-var MIDTRANS_SERVER_KEY = "SB-Mid-server-GANTI_DENGAN_KEY_KAMU"; // ← ganti ini
-var MIDTRANS_API_URL = "https://app.sandbox.midtrans.com/snap/v1/transactions";
-var MIDTRANS_STATUS_URL = "https://api.sandbox.midtrans.com/v2/";
 
 // ─── CORS HELPER ─────────────────────────────────────────────
 function setCorsHeaders(output) {
@@ -24,9 +22,7 @@ function doPost(e) {
     var action = body.action;
     var result;
 
-    if      (action === "createToken")     result = createMidtransToken();
-    else if (action === "checkStatus")     result = checkPaymentStatus(body.orderId);
-    else if (action === "uploadPhoto")     result = uploadPhotoToDrive(body.orderId, body.image);
+    if      (action === "uploadPhoto")     result = uploadPhotoToDrive(body.orderId, body.image);
     else if (action === "logTransaction")  result = logTransactionToSheet(body);
     else result = { success: false, error: "Unknown action: " + action };
 
@@ -42,74 +38,11 @@ function doPost(e) {
 function doGet(e) {
   var output = ContentService.createTextOutput();
   output.setMimeType(ContentService.MimeType.JSON);
-  output.setContent(JSON.stringify({ status: "GAS aktif", version: "2.0" }));
+  output.setContent(JSON.stringify({ status: "GAS aktif", version: "3.0 - Upload & Log Only" }));
   return output;
 }
 
-// ─── 1. BUAT MIDTRANS SNAP TOKEN ─────────────────────────────
-function createMidtransToken() {
-  var orderId = "MEMO4-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6).toUpperCase();
-
-  var authHeader = "Basic " + Utilities.base64Encode(MIDTRANS_SERVER_KEY + ":");
-
-  var payload = {
-    transaction_details: {
-      order_id:     orderId,
-      gross_amount: 20000
-    },
-    enabled_payments: ["qris"],
-    expiry: { unit: "minute", duration: 15 }
-  };
-
-  var options = {
-    method:  "post",
-    headers: {
-      "Content-Type":  "application/json",
-      "Authorization": authHeader
-    },
-    payload:          JSON.stringify(payload),
-    muteHttpExceptions: true
-  };
-
-  var response = UrlFetchApp.fetch(MIDTRANS_API_URL, options);
-  var data     = JSON.parse(response.getContentText());
-
-  if (data.token) {
-    return { success: true, snapToken: data.token, orderId: orderId };
-  } else {
-    return { success: false, error: "Midtrans error: " + JSON.stringify(data) };
-  }
-}
-
-// ─── 2. CEK STATUS PEMBAYARAN ─────────────────────────────────
-function checkPaymentStatus(orderId) {
-  if (!orderId) return { success: false, error: "orderId kosong" };
-
-  var authHeader = "Basic " + Utilities.base64Encode(MIDTRANS_SERVER_KEY + ":");
-
-  var options = {
-    method:  "get",
-    headers: { "Authorization": authHeader },
-    muteHttpExceptions: true
-  };
-
-  var response = UrlFetchApp.fetch(MIDTRANS_STATUS_URL + orderId + "/status", options);
-  var data     = JSON.parse(response.getContentText());
-
-  var txStatus    = data.transaction_status;
-  var fraudStatus = data.fraud_status;
-  var isPaid      = txStatus === "settlement" ||
-                    (txStatus === "capture" && fraudStatus === "accept");
-
-  return {
-    success: true,
-    orderId: orderId,
-    status:  isPaid ? "paid" : "pending",
-    raw:     txStatus
-  };
-}
-
-// ─── 3. UPLOAD FOTO KE GOOGLE DRIVE ──────────────────────────
+// ─── 1. UPLOAD FOTO KE GOOGLE DRIVE ──────────────────────────
 function uploadPhotoToDrive(orderId, base64DataUrl) {
   var folder     = getOrCreateFolder(FOLDER_NAME);
   var base64Data = base64DataUrl.replace(/^data:image\/\w+;base64,/, "");
