@@ -470,16 +470,6 @@ export default function QRResultScreen({
                   <Download className="w-4 h-4" />
                   <span>SIMPAN KE KOMPUTER</span>
                 </a>
-
-                {/* Print Physical Button */}
-                <button
-                  id="print-btn"
-                  onClick={handlePrintPhysical}
-                  className="mt-3 flex items-center gap-2 px-5 py-2.5 bg-[#FF3366] text-white font-mono text-xs font-black border-3 border-[#1A1A1A] neo-shadow-sm neo-button rounded-xl uppercase hover:bg-[#e02b59]"
-                >
-                  <span>🖨️</span>
-                  <span>CETAK FISIK</span>
-                </button>
               </div>
             </div>
 
