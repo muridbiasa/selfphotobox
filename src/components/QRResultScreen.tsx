@@ -132,80 +132,160 @@ export default function QRResultScreen({
     }
   }, [autoResetTimer, loading, onFinish]);
 
-  // Fungsi untuk mencetak dengan teknik Blob URL (100% aman untuk Android & Base64/Canvas)
+  // Fungsi untuk mencetak dengan teknik Blob URL + delay rendering (FIX: gambar blank di PDF)
   const handlePrintPhysical = async () => {
     const visualElement = document.getElementById('final-photostrip-image');
-    if (!visualElement) return;
+    if (!visualElement) {
+      alert("Elemen gambar tidak ditemukan!");
+      return;
+    }
     
     let dataUrl = '';
 
-    // 1. Ambil data gambar dengan aman
+    // 1. Ambil data gambar dengan aman dari canvas atau img
     if (visualElement.tagName.toLowerCase() === 'canvas') {
-      dataUrl = visualElement.toDataURL('image/png');
+      dataUrl = (visualElement as HTMLCanvasElement).toDataURL('image/png');
     } else {
-      // Jika img biasa, kita render ke canvas dulu agar base64-nya valid
-      const img = visualElement.querySelector('img') || visualElement;
-      if (!(img instanceof HTMLImageElement)) return;
+      const imgEl = visualElement.querySelector('img') || visualElement;
+      if (!(imgEl instanceof HTMLImageElement) || !imgEl.src) {
+        alert("Gambar belum siap! Tunggu hingga preview muncul.");
+        return;
+      }
       
+      // Render image ke canvas untuk memastikan base64 valid
       const canvas = document.createElement('canvas');
-      canvas.width = img.naturalWidth || 500;
-      canvas.height = img.naturalHeight || 1500;
+      canvas.width = imgEl.naturalWidth || 600;
+      canvas.height = imgEl.naturalHeight || 1800;
       const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      ctx.drawImage(img, 0, 0);
+      if (!ctx) {
+        alert("Gagal mengakses context canvas.");
+        return;
+      }
+      ctx.drawImage(imgEl, 0, 0);
       dataUrl = canvas.toDataURL('image/png');
     }
 
-    if (!dataUrl) {
-      alert('Gambar tidak tersedia untuk dicetak.');
+    if (!dataUrl || dataUrl.length < 100) {
+      alert("Data gambar kosong atau rusak.");
       return;
     }
 
     try {
-      // 2. Ubah dataUrl menjadi Blob agar browser tidak memblokir
+      // 2. Konversi ke Blob URL agar tidak diblokir browser
       const response = await fetch(dataUrl);
       const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
 
-      // 3. Buka jendela baru yang bersih
+      // 3. Buka window print baru
       const printWindow = window.open('', '_blank');
       if (!printWindow) {
-        alert('Popup diblokir oleh browser. Izinkan popup untuk mencetak.');
+        alert("Popup blocker aktif! Izinkan popup untuk mencetak.");
         URL.revokeObjectURL(blobUrl);
         return;
       }
 
+      // 4. Inject HTML dengan script yang menunggu gambar LOAD sebelum print
       printWindow.document.write(`
+        <!DOCTYPE html>
         <html>
-          <head>
-            <title>Print Photostrip</title>
-            <style>
-              @page { size: A4 landscape; margin: 0; }
-              body { margin: 0; padding: 0; background: white; overflow: hidden; }
-              img {
-                position: absolute;
-                left: 0.5cm;
-                top: 0.5cm;
-                width: 5cm;
-                height: 15cm;
-                object-fit: cover;
-                border: none;
-                box-shadow: none;
+        <head>
+          <title>Cetak Photostrip</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            @page { size: A4 landscape; margin: 0; }
+            body { 
+              margin: 0; 
+              padding: 0; 
+              background: white; 
+              overflow: hidden; 
+              height: 100vh; 
+              display: flex; 
+              align-items: center; 
+              justify-content: center; 
+              font-family: sans-serif;
+            }
+            img {
+              width: 5cm;
+              height: 15cm;
+              object-fit: cover;
+              display: block;
+              border: none !important;
+              box-shadow: none !important;
+              outline: none !important;
+            }
+            .loading { 
+              position: absolute; 
+              top: 50%; 
+              left: 50%; 
+              transform: translate(-50%, -50%); 
+              color: #999; 
+              font-size: 14px;
+              text-align: center;
+            }
+            @media print {
+              body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+              .loading { display: none !important; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="loading">Memuat gambar...<br><small>Jangan tutup window ini</small></div>
+          <img id="printImg" src="${blobUrl}" alt="Photostrip" />
+          
+          <script>
+            (function() {
+              const img = document.getElementById('printImg');
+              const loader = document.querySelector('.loading');
+              
+              const doPrint = () => {
+                // Sembunyikan loading text
+                if(loader) loader.style.display = 'none';
+                
+                // Beri waktu browser merender gambar sebelum print
+                setTimeout(() => {
+                  try {
+                    window.focus();
+                    window.print();
+                    // Tutup window setelah 1 detik
+                    setTimeout(() => {
+                      window.close();
+                      // Revoke blob URL di window utama
+                      try { URL.revokeObjectURL('${blobUrl}'); } catch(e){}
+                    }, 1000);
+                  } catch(err) {
+                    console.error('Print failed:', err);
+                    if(loader) {
+                      loader.innerHTML = 'Gagal mencetak. Silakan coba lagi.<br><button onclick="window.close()">Tutup</button>';
+                      loader.style.display = 'block';
+                    }
+                  }
+                }, 800); // Delay 800ms untuk memastikan render selesai
+              };
+
+              // Cek apakah gambar sudah di-cache
+              if (img && img.complete && img.naturalWidth > 0) {
+                doPrint();
+              } else if (img) {
+                img.addEventListener('load', doPrint);
+                img.addEventListener('error', () => {
+                  if(loader) {
+                    loader.innerHTML = '<strong style="color:red;">GAGAL MEMUAT GAMBAR</strong><br><small>URL Blob mungkin kadaluarsa</small><br><button onclick="window.close()">Tutup</button>';
+                    loader.style.display = 'block';
+                  }
+                  console.error('Image load error');
+                });
               }
-              @media print {
-                body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-              }
-            </style>
-          </head>
-          <body>
-            <img src="${blobUrl}" onload="window.print(); setTimeout(() => { window.close(); URL.revokeObjectURL('${blobUrl}'); }, 500);" onerror="alert('Gagal memuat gambar untuk dicetak');" />
-          </body>
+            })();
+          <\/script>
+        </body>
         </html>
       `);
+      
       printWindow.document.close();
+
     } catch (err) {
-      console.error('Print error:', err);
-      alert('Terjadi kesalahan saat mempersiapkan cetakan.');
+      console.error('Print preparation error:', err);
+      alert('Terjadi kesalahan saat menyiapkan cetak: ' + (err as Error).message);
     }
   };
 
