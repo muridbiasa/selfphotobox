@@ -74,31 +74,51 @@
 
 /* ============================================================
    PRINT STYLES - For physical printing on A4 (5cm x 15cm)
+   REVISED: Super strict to remove all UI effects and lock to 1 page
    ============================================================ */
 @media print {
-  /* 1. Paksa ukuran kertas A4 Landscape */
+  /* 1. Kunci Kertas dan Hilangkan Bocor Halaman */
   @page {
     size: A4 landscape;
     margin: 0;
   }
-
-  /* 2. Sembunyikan SEMUA elemen web (background, tombol, teks) */
+  
+  html, body {
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: white !important;
+  }
+  
+  /* 2. Matikan SEMUA elemen web */
   body * {
-    visibility: hidden;
+    display: none !important;
   }
 
-  /* 3. Tampilkan HANYA gambar hasil photostrip */
-  #final-photostrip-image, #final-photostrip-image * {
-    visibility: visible;
-  }
-
-  /* 4. Atur posisi di pojok kiri atas dan paksa ukuran fisik 5x15 cm */
+  /* 3. Tampilkan HANYA gambar hasil photostrip dan lucuti SEMUA efeknya */
   #final-photostrip-image {
-    position: absolute;
-    left: 1cm;  /* Beri sedikit jarak aman dari tepi agar tidak terpotong printer */
-    top: 1cm;
+    display: block !important;
+    position: absolute !important;
+    left: 0.5cm !important; /* Jarak aman tepi printer */
+    top: 0.5cm !important;
     width: 5cm !important;
     height: 15cm !important;
-    object-fit: contain;
+    
+    /* Paling Penting: Bersihkan sisa styling UI */
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    
+    /* Paskan gambar ke ukuran 5x15 tanpa bolong */
+    object-fit: cover !important; 
+    
+    /* Cegah halaman terbelah */
+    page-break-inside: avoid !important;
   }
 }
