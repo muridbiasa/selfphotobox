@@ -218,6 +218,56 @@ export default function QRResultScreen({
         backgroundSize: '24px 24px'
       }}
     >
+      <style>{`
+        @media print {
+          /* 1. Paksa Kertas A4 Landscape & Hilangkan Margin */
+          @page {
+            size: A4 landscape;
+            margin: 0 !important;
+          }
+
+          /* 2. Sembunyikan SEMUA elemen UI selain gambar utama */
+          body, html {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            overflow: hidden !important;
+          }
+
+          body * {
+            display: none !important;
+          }
+
+          /* 3. Target elemen gambar (PENTING: Pastikan ID sesuai!) */
+          #final-photostrip-image, #final-photostrip-image * {
+            display: block !important;
+            visibility: visible !important;
+          }
+
+          /* 4. Reset total gaya: Hapus shadow, border, outline, padding */
+          #final-photostrip-image {
+            position: absolute !important;
+            left: 0.5cm !important; 
+            top: 0.5cm !important;
+            width: 5cm !important;
+            height: 15cm !important;
+            
+            /* "Sikat" semua dekorasi */
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            filter: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: transparent !important;
+            
+            /* Paksa presisi */
+            object-fit: cover !important;
+            page-break-after: avoid !important;
+            page-break-before: avoid !important;
+          }
+        }
+      `}</style>
       <AnimatePresence mode="wait">
         {loading ? (
           /* STATE 1: UPLOADING Loading Panel (Y2K continuous motion marquee style) */
