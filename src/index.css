@@ -71,3 +71,34 @@
 .animate-flash {
   animation: flash 0.5s ease-out forwards;
 }
+
+/* ============================================================
+   PRINT STYLES - For physical printing on A4 (5cm x 15cm)
+   ============================================================ */
+@media print {
+  /* 1. Paksa ukuran kertas A4 Landscape */
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+
+  /* 2. Sembunyikan SEMUA elemen web (background, tombol, teks) */
+  body * {
+    visibility: hidden;
+  }
+
+  /* 3. Tampilkan HANYA gambar hasil photostrip */
+  #final-photostrip-image, #final-photostrip-image * {
+    visibility: visible;
+  }
+
+  /* 4. Atur posisi di pojok kiri atas dan paksa ukuran fisik 5x15 cm */
+  #final-photostrip-image {
+    position: absolute;
+    left: 1cm;  /* Beri sedikit jarak aman dari tepi agar tidak terpotong printer */
+    top: 1cm;
+    width: 5cm !important;
+    height: 15cm !important;
+    object-fit: contain;
+  }
+}

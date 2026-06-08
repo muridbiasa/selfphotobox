@@ -234,7 +234,7 @@ export default function QRResultScreen({
                   PRINTOUT PREVIEW (COMPOSITE)
                 </p>
 
-                <div className={`w-full border-3 border-[#1A1A1A] rounded-lg overflow-hidden shadow-[8px_8px_0px_#1A1A1A] relative bg-gray-50 ${
+                <div id="final-photostrip-image" className={`w-full border-3 border-[#1A1A1A] rounded-lg overflow-hidden shadow-[8px_8px_0px_#1A1A1A] relative bg-gray-50 ${
                   template.id === 'sedes-run' ? 'max-w-[170px] aspect-[500/1500]' : 'max-w-[280px] aspect-[1000/1100]'
                 }`}>
                   {compositeUrl ? (
@@ -259,6 +259,16 @@ export default function QRResultScreen({
                   <Download className="w-4 h-4" />
                   <span>SIMPAN KE KOMPUTER</span>
                 </a>
+
+                {/* Print Physical Button */}
+                <button
+                  id="print-btn"
+                  onClick={() => window.print()}
+                  className="mt-3 flex items-center gap-2 px-5 py-2.5 bg-[#FF3366] text-white font-mono text-xs font-black border-3 border-[#1A1A1A] neo-shadow-sm neo-button rounded-xl uppercase hover:bg-[#e02b59]"
+                >
+                  <span>🖨️</span>
+                  <span>CETAK FISIK</span>
+                </button>
               </div>
             </div>
 
