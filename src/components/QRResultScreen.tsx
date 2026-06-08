@@ -132,70 +132,81 @@ export default function QRResultScreen({
     }
   }, [autoResetTimer, loading, onFinish]);
 
-  // Fungsi untuk mencetak dengan teknik Temporary DOM Swap (100% aman untuk Android)
-  const handlePrintPhysical = () => {
+  // Fungsi untuk mencetak dengan teknik Blob URL (100% aman untuk Android & Base64/Canvas)
+  const handlePrintPhysical = async () => {
     const visualElement = document.getElementById('final-photostrip-image');
     if (!visualElement) return;
     
-    // Ambil source gambar dari img element atau canvas
-    const imgSrc = visualElement.tagName.toLowerCase() === 'canvas' 
-      ? visualElement.toDataURL('image/png') 
-      : visualElement.querySelector('img')?.src || compositeUrl;
-    
-    if (!imgSrc) return;
+    let dataUrl = '';
 
-    // Simpan referensi ke elemen asli dan container utama
-    const resultPanel = document.querySelector('#qr-result-screen-container > div:last-child') as HTMLElement;
-    const originalContent = resultPanel?.innerHTML;
-    
-    if (!resultPanel) return;
-
-    // Sembunyikan UI utama, ganti dengan gambar polos untuk print
-    const printContainer = document.createElement('div');
-    printContainer.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: white;
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0;
-      padding: 0;
-    `;
-    
-    const printImg = document.createElement('img');
-    printImg.src = imgSrc;
-    printImg.style.cssText = `
-      width: 5cm;
-      height: 15cm;
-      object-fit: cover;
-      border: none;
-      box-shadow: none;
-      margin: 0;
-      padding: 0;
-    `;
-    
-    printContainer.appendChild(printImg);
-    document.body.appendChild(printContainer);
-
-    // Tunggu gambar load, lalu print dan restore UI
-    printImg.onload = () => {
-      window.print();
+    // 1. Ambil data gambar dengan aman
+    if (visualElement.tagName.toLowerCase() === 'canvas') {
+      dataUrl = visualElement.toDataURL('image/png');
+    } else {
+      // Jika img biasa, kita render ke canvas dulu agar base64-nya valid
+      const img = visualElement.querySelector('img') || visualElement;
+      if (!(img instanceof HTMLImageElement)) return;
       
-      // Hapus container print dan kembalikan UI asli
-      setTimeout(() => {
-        document.body.removeChild(printContainer);
-      }, 500);
-    };
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth || 500;
+      canvas.height = img.naturalHeight || 1500;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.drawImage(img, 0, 0);
+      dataUrl = canvas.toDataURL('image/png');
+    }
 
-    printImg.onerror = () => {
-      document.body.removeChild(printContainer);
-      alert('Gagal memuat gambar untuk dicetak.');
-    };
+    if (!dataUrl) {
+      alert('Gambar tidak tersedia untuk dicetak.');
+      return;
+    }
+
+    try {
+      // 2. Ubah dataUrl menjadi Blob agar browser tidak memblokir
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      // 3. Buka jendela baru yang bersih
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        alert('Popup diblokir oleh browser. Izinkan popup untuk mencetak.');
+        URL.revokeObjectURL(blobUrl);
+        return;
+      }
+
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Print Photostrip</title>
+            <style>
+              @page { size: A4 landscape; margin: 0; }
+              body { margin: 0; padding: 0; background: white; overflow: hidden; }
+              img {
+                position: absolute;
+                left: 0.5cm;
+                top: 0.5cm;
+                width: 5cm;
+                height: 15cm;
+                object-fit: cover;
+                border: none;
+                box-shadow: none;
+              }
+              @media print {
+                body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+              }
+            </style>
+          </head>
+          <body>
+            <img src="${blobUrl}" onload="window.print(); setTimeout(() => { window.close(); URL.revokeObjectURL('${blobUrl}'); }, 500);" onerror="alert('Gagal memuat gambar untuk dicetak');" />
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+    } catch (err) {
+      console.error('Print error:', err);
+      alert('Terjadi kesalahan saat mempersiapkan cetakan.');
+    }
   };
 
   return (
