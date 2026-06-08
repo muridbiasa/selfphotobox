@@ -1,13 +1,15 @@
-// Vercel Serverless: GET /api/pay/status/:orderId
-// Frontend polling tiap 1.5 detik → cek status pembayaran ke Midtrans
+// Vercel Serverless: POST /api/pay/status
+// Frontend polling tiap 2.5 detik → cek status pembayaran ke Midtrans
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  if (req.method !== 'GET') return res.status(405).end();
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { orderId } = req.query;
+  const { orderId } = req.body;
   if (!orderId || typeof orderId !== 'string') {
     return res.status(400).json({ error: 'orderId wajib diisi' });
   }

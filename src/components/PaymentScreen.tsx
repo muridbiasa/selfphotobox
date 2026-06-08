@@ -21,8 +21,9 @@ interface PaymentScreenProps {
 
 type Phase = 'loading' | 'waiting_scan' | 'polling' | 'error';
 
-// GAS URL — dibaca dari env variable Vite
+// API URLs — dibaca dari env variable Vite
 const GAS_URL = import.meta.env.VITE_GAS_URL as string;
+const PAYMENT_API_URL = '/api/pay/token'; // Vercel Serverless Function untuk create token
 
 export default function PaymentScreen({ onBack, onPaymentSuccess }: PaymentScreenProps) {
   const [phase,    setPhase]    = useState<Phase>('loading');
@@ -40,36 +41,39 @@ export default function PaymentScreen({ onBack, onPaymentSuccess }: PaymentScree
 
     async function initPayment() {
       try {
-        if (!GAS_URL) throw new Error('VITE_GAS_URL belum diset di Vercel env');
+        if (!PAYMENT_API_URL) throw new Error('Payment API URL belum diset');
 
         setPhase('loading');
 
-        const res  = await fetch(GAS_URL, {
+        const res  = await fetch(PAYMENT_API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'text/plain' }, // GAS butuh text/plain bukan application/json
-          body: JSON.stringify({ action: 'createToken' }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: 20000 }),
         });
         const data = await res.json();
 
         if (!active) return;
-        if (!data.snapToken) throw new Error(data.error || 'GAS gagal buat token');
+        if (!data.snapToken && !data.token) throw new Error(data.error || 'Gagal membuat token pembayaran');
 
-        setOrderId(data.orderId);
+        const snapToken = data.snapToken || data.token;
+        const order_id = data.orderId || data.order_id;
+        
+        setOrderId(order_id);
         setPhase('waiting_scan');
 
         // ─── 2. Buka Midtrans Snap popup ──────────────
         if (!window.snap) throw new Error('Snap SDK belum termuat. Cek index.html.');
 
-        window.snap.pay(data.snapToken, {
+        window.snap.pay(snapToken, {
           onSuccess: (result) => {
             if (!active) return;
             stopPolling();
-            onPaymentSuccess(data.orderId);
+            onPaymentSuccess(order_id);
           },
           onPending: () => {
             if (!active) return;
             setPhase('polling');
-            startPolling(data.orderId);
+            startPolling(order_id);
           },
           onError: () => {
             if (!active) return;
@@ -79,7 +83,7 @@ export default function PaymentScreen({ onBack, onPaymentSuccess }: PaymentScree
           onClose: () => {
             if (!active) return;
             setPhase('polling');
-            startPolling(data.orderId);
+            startPolling(order_id);
           },
         });
       } catch (err: any) {
@@ -91,15 +95,15 @@ export default function PaymentScreen({ onBack, onPaymentSuccess }: PaymentScree
     return () => { active = false; stopPolling(); };
   }, []);
 
-  // ─── 3. Polling status via GAS ────────────────────────
+  // ─── 3. Polling status via Vercel API ────────────────────────
   function startPolling(id: string) {
     stopPolling();
     pollingRef.current = setInterval(async () => {
       try {
-        const res  = await fetch(GAS_URL, {
+        const res  = await fetch('/api/pay/status', {
           method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'checkStatus', orderId: id }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId: id }),
         });
         const data = await res.json();
         if (data.status === 'paid') {
