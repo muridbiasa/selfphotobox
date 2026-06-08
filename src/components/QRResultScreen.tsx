@@ -132,45 +132,70 @@ export default function QRResultScreen({
     }
   }, [autoResetTimer, loading, onFinish]);
 
-  // Fungsi untuk mencetak ke window terpisah tanpa CSS aplikasi
+  // Fungsi untuk mencetak dengan teknik Temporary DOM Swap (100% aman untuk Android)
   const handlePrintPhysical = () => {
-    const imgElement = document.getElementById('final-photostrip-image');
-    if (!imgElement) return;
+    const visualElement = document.getElementById('final-photostrip-image');
+    if (!visualElement) return;
     
-    const imgSrc = imgElement.querySelector('img')?.src || compositeUrl;
+    // Ambil source gambar dari img element atau canvas
+    const imgSrc = visualElement.tagName.toLowerCase() === 'canvas' 
+      ? visualElement.toDataURL('image/png') 
+      : visualElement.querySelector('img')?.src || compositeUrl;
+    
     if (!imgSrc) return;
 
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      alert('Popup diblokir! Izinkan popup untuk mencetak.');
-      return;
-    }
+    // Simpan referensi ke elemen asli dan container utama
+    const resultPanel = document.querySelector('#qr-result-screen-container > div:last-child') as HTMLElement;
+    const originalContent = resultPanel?.innerHTML;
+    
+    if (!resultPanel) return;
 
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Print Photostrip</title>
-          <style>
-            @page { size: A4 landscape; margin: 0; }
-            body { margin: 0; padding: 0; background: white; overflow: hidden; }
-            img {
-              position: absolute;
-              left: 0.5cm;
-              top: 0.5cm;
-              width: 5cm;
-              height: 15cm;
-              object-fit: cover;
-              border: none;
-              box-shadow: none;
-            }
-          </style>
-        </head>
-        <body>
-          <img src="${imgSrc}" onload="window.print(); window.close();" />
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
+    // Sembunyikan UI utama, ganti dengan gambar polos untuk print
+    const printContainer = document.createElement('div');
+    printContainer.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: white;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
+    `;
+    
+    const printImg = document.createElement('img');
+    printImg.src = imgSrc;
+    printImg.style.cssText = `
+      width: 5cm;
+      height: 15cm;
+      object-fit: cover;
+      border: none;
+      box-shadow: none;
+      margin: 0;
+      padding: 0;
+    `;
+    
+    printContainer.appendChild(printImg);
+    document.body.appendChild(printContainer);
+
+    // Tunggu gambar load, lalu print dan restore UI
+    printImg.onload = () => {
+      window.print();
+      
+      // Hapus container print dan kembalikan UI asli
+      setTimeout(() => {
+        document.body.removeChild(printContainer);
+      }, 500);
+    };
+
+    printImg.onerror = () => {
+      document.body.removeChild(printContainer);
+      alert('Gagal memuat gambar untuk dicetak.');
+    };
   };
 
   return (
