@@ -132,6 +132,47 @@ export default function QRResultScreen({
     }
   }, [autoResetTimer, loading, onFinish]);
 
+  // Fungsi untuk mencetak ke window terpisah tanpa CSS aplikasi
+  const handlePrintPhysical = () => {
+    const imgElement = document.getElementById('final-photostrip-image');
+    if (!imgElement) return;
+    
+    const imgSrc = imgElement.querySelector('img')?.src || compositeUrl;
+    if (!imgSrc) return;
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Popup diblokir! Izinkan popup untuk mencetak.');
+      return;
+    }
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Print Photostrip</title>
+          <style>
+            @page { size: A4 landscape; margin: 0; }
+            body { margin: 0; padding: 0; background: white; overflow: hidden; }
+            img {
+              position: absolute;
+              left: 0.5cm;
+              top: 0.5cm;
+              width: 5cm;
+              height: 15cm;
+              object-fit: cover;
+              border: none;
+              box-shadow: none;
+            }
+          </style>
+        </head>
+        <body>
+          <img src="${imgSrc}" onload="window.print(); window.close();" />
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
   return (
     <div
       id="qr-result-screen-container"
@@ -263,7 +304,7 @@ export default function QRResultScreen({
                 {/* Print Physical Button */}
                 <button
                   id="print-btn"
-                  onClick={() => window.print()}
+                  onClick={handlePrintPhysical}
                   className="mt-3 flex items-center gap-2 px-5 py-2.5 bg-[#FF3366] text-white font-mono text-xs font-black border-3 border-[#1A1A1A] neo-shadow-sm neo-button rounded-xl uppercase hover:bg-[#e02b59]"
                 >
                   <span>🖨️</span>
