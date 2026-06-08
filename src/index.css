@@ -101,7 +101,7 @@
   #final-photostrip-image {
     display: block !important;
     position: absolute !important;
-    left: 0.5cm !important; /* Jarak aman tepi printer */
+    left: 5cm !important; /* Jarak 5cm dari tepi kiri */
     top: 0.5cm !important;
     width: 5cm !important;
     height: 15cm !important;
