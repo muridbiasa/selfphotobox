@@ -1,3 +1,100 @@
+import React, { useState } from 'react';
+import { ShieldCheck, ArrowLeft } from 'lucide-react';
+
+interface PaymentScreenProps {
+  onBack:           () => void;
+  onPaymentSuccess: (orderId: string) => void;
+}
+
+export default function PaymentScreen({ onBack, onPaymentSuccess }: PaymentScreenProps) {
+  // Generate a simple order ID for tracking
+  const orderId = 'QRIS-' + Date.now().toString().slice(-6);
+
+  return (
+    <div
+      className="flex flex-col items-center justify-center min-h-screen w-full bg-[#FFE5F1] p-6 select-none relative"
+      style={{ backgroundImage: 'radial-gradient(rgba(26,26,26,0.1) 1.5px, transparent 1.5px)', backgroundSize: '24px 24px' }}
+    >
+      {/* Tombol Lanjut di Pojok Kanan Atas */}
+      <button
+        onClick={() => onPaymentSuccess(orderId)}
+        className="absolute top-6 right-6 px-6 py-3 bg-white text-[#1A1A1A] font-black border-4 border-[#1A1A1A] rounded-lg text-lg shadow-[6px_6px_0px_#1A1A1A] hover:shadow-[4px_4px_0px_#1A1A1A] hover:translate-x-[2px] hover:translate-y-[2px] transition-all z-50"
+      >
+        Lanjut ➔
+      </button>
+
+      {/* Tombol Kembali */}
+      <button
+        onClick={onBack}
+        className="absolute top-6 left-6 flex items-center gap-2 px-4 py-2 bg-white text-[#1A1A1A] font-bold border-4 border-[#1A1A1A] rounded-lg text-sm shadow-[4px_4px_0px_#1A1A1A] hover:shadow-[2px_2px_0px_#1A1A1A] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+      >
+        <ArrowLeft className="w-4 h-4" /><span>Kembali</span>
+      </button>
+
+      {/* Main QRIS Card - Neo-Brutalism Style */}
+      <div className="w-full max-w-md bg-[#FFFC00] border-4 border-[#1A1A1A] rounded-2xl p-8 flex flex-col items-center gap-6 shadow-[12px_12px_0px_#1A1A1A]">
+        
+        {/* Header Badge */}
+        <div className="flex items-center gap-2 px-5 py-2 bg-[#1C2459] border-3 border-[#1A1A1A] rounded-full font-mono text-sm font-extrabold text-white">
+          <ShieldCheck className="w-5 h-5" /><span>PEMBAYARAN QRIS</span>
+        </div>
+
+        {/* Judul Utama */}
+        <h2 className="font-black text-3xl text-[#1A1A1A] uppercase tracking-tight text-center leading-tight">
+          Scan QRIS untuk<br/>Membayar
+        </h2>
+
+        {/* Harga */}
+        <p className="text-xl font-bold text-[#1A1A1A]">
+          Rp 20.000
+        </p>
+
+        {/* QRIS Image - Ukuran Besar untuk Mudah Scan */}
+        <div className="w-72 h-72 bg-white border-4 border-[#1A1A1A] rounded-xl flex items-center justify-center shadow-[6px_6px_0px_#1A1A1A]">
+          <img 
+            src="/qris-gopay.png" 
+            alt="QRIS Code" 
+            className="w-64 h-64 object-contain"
+          />
+        </div>
+
+        {/* Instruksi */}
+        <div className="text-center space-y-2">
+          <p className="font-bold text-[#1A1A1A] text-lg uppercase">
+            📱 Scan dengan E-Wallet Apapun!
+          </p>
+          <p className="text-sm font-medium text-gray-700 leading-relaxed">
+            Gunakan GoPay, OVO, DANA, ShopeePay,<br/>atau aplikasi banking yang mendukung QRIS.
+          </p>
+        </div>
+
+        {/* Footer - Supported Payment Methods */}
+        <div className="w-full border-t-4 border-[#1A1A1A] pt-4 flex justify-center gap-3 text-xs font-black text-[#1A1A1A] flex-wrap">
+          <span>GOPAY</span><span>•</span><span>OVO</span><span>•</span>
+          <span>DANA</span><span>•</span><span>SHOPEEPAY</span><span>•</span><span>QRIS</span>
+        </div>
+
+        {/* Order ID Display */}
+        <p
+          className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mt-2"
+        >
+          ORDER: {orderId}
+        </p>
+      </div>
+
+      {/* Helper Text di Bawah */}
+      <p className="mt-6 text-sm font-bold text-[#1A1A1A] text-center max-w-md">
+        Setelah scan dan bayar, klik tombol <span className="bg-white px-2 py-1 border-2 border-[#1A1A1A] rounded">Lanjut ➔</span> di pojok kanan atas.
+      </p>
+    </div>
+  );
+}
+
+/* 
+==========================================================================
+DEPRECATED - MIDTRANS CODE (Commented Out for Future Use)
+==========================================================================
+
 import React, { useState, useEffect, useRef } from 'react';
 import { ShieldCheck, Loader2, ArrowLeft, RefreshCw, AlertCircle } from 'lucide-react';
 
@@ -14,18 +111,12 @@ declare global {
   }
 }
 
-interface PaymentScreenProps {
-  onBack:           () => void;
-  onPaymentSuccess: (orderId: string) => void;
-}
-
 type Phase = 'loading' | 'waiting_scan' | 'polling' | 'error';
 
-// API URLs — dibaca dari env variable Vite
 const GAS_URL = import.meta.env.VITE_GAS_URL as string;
-const PAYMENT_API_URL = '/api/pay/token'; // Vercel Serverless Function untuk create token
+const PAYMENT_API_URL = '/api/pay/token';
 
-export default function PaymentScreen({ onBack, onPaymentSuccess }: PaymentScreenProps) {
+function PaymentScreenMidtrans({ onBack, onPaymentSuccess }: PaymentScreenProps) {
   const [phase,    setPhase]    = useState<Phase>('loading');
   const [orderId,  setOrderId]  = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -35,7 +126,6 @@ export default function PaymentScreen({ onBack, onPaymentSuccess }: PaymentScree
     if (pollingRef.current) { clearInterval(pollingRef.current); pollingRef.current = null; }
   };
 
-  // ─── 1. Minta token ke GAS ────────────────────────────
   useEffect(() => {
     let active = true;
 
@@ -95,7 +185,6 @@ export default function PaymentScreen({ onBack, onPaymentSuccess }: PaymentScree
     return () => { active = false; stopPolling(); };
   }, []);
 
-  // ─── 3. Polling status via Vercel API ────────────────────────
   function startPolling(id: string) {
     stopPolling();
     pollingRef.current = setInterval(async () => {
@@ -206,3 +295,4 @@ export default function PaymentScreen({ onBack, onPaymentSuccess }: PaymentScree
     </div>
   );
 }
+*/
