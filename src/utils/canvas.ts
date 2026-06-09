@@ -109,6 +109,6 @@ export async function generateCompositeImage(
   const frameOverlay = await loadImage(frameImageUrl);
   ctx.drawImage(frameOverlay, 0, 0, canvas.width, canvas.height);
 
-  // ─── 6. OUTPUT: JPEG 90% quality ─────────────────────────────────────────
-  return canvas.toDataURL('image/jpeg', 0.9);
+  // ─── 6. OUTPUT: JPEG 100% quality (maximum) ─────────────────────────────────────────
+  return canvas.toDataURL('image/jpeg', 1.0);
 }

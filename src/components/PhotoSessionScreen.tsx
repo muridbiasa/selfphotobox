@@ -41,8 +41,8 @@ export default function PhotoSessionScreen({
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: 'user', // tablet kiosk front camera
-            width: { ideal: 640 },
-            height: { ideal: 480 }
+            width: { ideal: 1920 },  // Request HD resolution for better print quality
+            height: { ideal: 1080 }
           },
           audio: false
         });
@@ -162,17 +162,21 @@ export default function PhotoSessionScreen({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Capture dimensions
-    canvas.width = 640;
-    canvas.height = 480;
-
     if (usingMockCamera) {
       const srcCanvas = mockCanvasRef.current;
       if (srcCanvas) {
+        // Use simulator canvas dimensions
+        canvas.width = srcCanvas.width;
+        canvas.height = srcCanvas.height;
         // Draw simulator contents
         ctx.drawImage(srcCanvas, 0, 0, canvas.width, canvas.height);
       }
-    } else if (videoRef.current) {
+    } else if (videoRef.current && videoRef.current.videoWidth > 0) {
+      // CRITICAL: Use actual video resolution, NOT CSS dimensions
+      // This ensures maximum quality capture for printing
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
+      
       // Draw from real camera feed
       // Draw mirrored images so it matches screen poses
       ctx.save();
@@ -180,8 +184,13 @@ export default function PhotoSessionScreen({
       ctx.scale(-1, 1);
       ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
       ctx.restore();
+    } else {
+      // Fallback dimensions if video not ready
+      canvas.width = 1920;
+      canvas.height = 1080;
     }
 
+    // Export at maximum quality - use PNG for lossless or JPEG with quality 1.0
     const snapBase64 = canvas.toDataURL('image/png');
     setCapturedTempUrl(snapBase64);
     setIsReviewMode(true);
