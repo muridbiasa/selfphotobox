@@ -41,11 +41,18 @@ export default function PhotoSessionScreen({
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: 'user', // tablet kiosk front camera
-            width: { ideal: 1920 },  // Request HD resolution for better print quality
-            height: { ideal: 1080 }
+            width: { ideal: 1920, min: 1280 },  // Request HD resolution, enforce minimum 720p+
+            height: { ideal: 1080, min: 720 }
           },
           audio: false
         });
+
+        // Log resolusi aktual yang diberikan kamera untuk debugging
+        const videoTrack = stream.getVideoTracks()[0];
+        if (videoTrack) {
+          const settings = videoTrack.getSettings();
+          console.log(`[Camera] Resolusi aktual: ${settings.width}×${settings.height}`);
+        }
         
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -161,6 +168,10 @@ export default function PhotoSessionScreen({
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    // Aktifkan anti-aliasing kualitas tinggi untuk scaling gambar
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
     if (usingMockCamera) {
       const srcCanvas = mockCanvasRef.current;

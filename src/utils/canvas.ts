@@ -36,11 +36,15 @@ export async function generateCompositeImage(
 ): Promise<string> {
   // ─── 1. INISIALISASI KANVAS MASTER (1000 × 3000 px) ───────────────────────
   const canvas = document.createElement('canvas');
-  canvas.width = 1000;
-  canvas.height = 3000;
+  canvas.width = 2000;
+  canvas.height = 6000;
 
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('[canvas.ts] Gagal mendapatkan 2D context pada canvas.');
+
+  // Aktifkan anti-aliasing kualitas tinggi untuk scaling gambar
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
 
   // ─── 2. LATAR BELAKANG DASAR: Putih bersih ────────────────────────────────
   ctx.fillStyle = '#FFFFFF';
@@ -48,10 +52,10 @@ export async function generateCompositeImage(
 
   // ─── 3. DATA KOORDINAT LUBANG FOTO (HD Pixel Calibration — PRD §4.2) ──────
   const holeCoordinates = [
-    { x: 90,  y: 352,  width: 820, height: 518 }, // Lubang 1 (Atas)
-    { x: 100, y: 998,  width: 820, height: 518 }, // Lubang 2 (Offset X+10)
-    { x: 90,  y: 1642, width: 820, height: 518 }, // Lubang 3
-    { x: 90,  y: 2288, width: 820, height: 518 }, // Lubang 4 (Bawah)
+    { x: 180,  y: 704,  width: 1640, height: 1036 }, // Lubang 1 (Atas) — 2× dari 90,352,820,518
+    { x: 200,  y: 1996, width: 1640, height: 1036 }, // Lubang 2 (Offset X+10) — 2× dari 100,998,820,518
+    { x: 180,  y: 3284, width: 1640, height: 1036 }, // Lubang 3 — 2× dari 90,1642,820,518
+    { x: 180,  y: 4576, width: 1640, height: 1036 }, // Lubang 4 (Bawah) — 2× dari 90,2288,820,518
   ];
 
   // ─── 4. LAYER BAWAH: Render foto-foto pengguna ────────────────────────────
