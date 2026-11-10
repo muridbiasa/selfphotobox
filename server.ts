@@ -4,7 +4,7 @@ import { createServer as createViteServer } from "vite";
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   // Set limit for JSON body to accept large base64 image strings!
   app.use(express.json({ limit: "25mb" }));
@@ -65,9 +65,10 @@ async function startServer() {
 
   // API Route - Upload photo composite
   app.post("/api/upload", (req, res) => {
-    const { orderId, image } = req.body;
-    if (!image) {
-      res.status(400).json({ error: "Image data required" });
+    const { orderId, image } = req.body ?? {};
+    const isImageDataUrl = typeof image === "string" && /^data:image\/(png|jpeg|webp);base64,[a-z0-9+/=]+$/i.test(image);
+    if (!isImageDataUrl) {
+      res.status(400).json({ error: "Valid base64 image data required" });
       return;
     }
     

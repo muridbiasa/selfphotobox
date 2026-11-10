@@ -42,18 +42,21 @@ export default function QRResultScreen({
 
         // Step B: Upload composite to our full-stack server
         if (isActive) setStatusText('Mengunggah ke database awan...');
-        const hostUrl = import.meta.env.VITE_GAS_URL as string;
-        
-        const response = await fetch(hostUrl, {
+        // Keep uploads same-origin. The server endpoint forwards to Google Apps Script
+        // when configured, so the browser never needs to make a cross-origin request.
+        const response = await fetch('/api/upload', {
           method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'uploadPhoto',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
             orderId: orderId || 'GUEST-' + Date.now(),
-            image: mergedBase64
-          })
+            image: mergedBase64,
+          }),
         });
-        
-        const uploadResult = await response.json();
+
+        const uploadResult = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(uploadResult.error || `Upload gagal (${response.status})`);
+        }
         if (!isActive) return;
 
         if (uploadResult.success) {
