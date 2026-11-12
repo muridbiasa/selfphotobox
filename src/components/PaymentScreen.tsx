@@ -46,7 +46,7 @@ export default function PaymentScreen({ onBack, onPaymentSuccess }: PaymentScree
 
         {/* Harga */}
         <p className="text-xl font-bold text-[#1A1A1A]">
-          Rp 20.000
+          Rp 10.000
         </p>
 
         {/* QRIS Image - Ukuran Besar untuk Mudah Scan */}
